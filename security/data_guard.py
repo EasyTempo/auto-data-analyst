@@ -16,38 +16,43 @@ class DataPrivacyGuard:
     }
 
     @staticmethod
-    def redact_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    def redact_dataframe(data_dict: dict) -> dict:
         """
-        Scans object/string columns and redacts detected PII.
-        Returns a new redacted DataFrame.
+        Scans object/string columns and redacts detected PII across multiple dataframes.
+        Returns a new dict of redacted DataFrames.
         """
-        redacted_df = df.copy()
-        for col in redacted_df.select_dtypes(include=['object', 'string']).columns:
-            # We iterate over patterns and replace occurrences
-            for pii_type, pattern in DataPrivacyGuard.PII_PATTERNS.items():
-                redacted_df[col] = redacted_df[col].apply(
-                    lambda x: re.sub(pattern, f'[REDACTED {pii_type.upper()}]', str(x)) if pd.notnull(x) else x
-                )
-        return redacted_df
+        redacted_dict = {}
+        for name, df in data_dict.items():
+            redacted_df = df.copy()
+            for col in redacted_df.select_dtypes(include=['object', 'string']).columns:
+                for pii_type, pattern in DataPrivacyGuard.PII_PATTERNS.items():
+                    redacted_df[col] = redacted_df[col].apply(
+                        lambda x: re.sub(pattern, f'[REDACTED {pii_type.upper()}]', str(x)) if pd.notnull(x) else x
+                    )
+            redacted_dict[name] = redacted_df
+        return redacted_dict
 
     @staticmethod
-    def extract_safe_metadata(df: pd.DataFrame) -> str:
+    def extract_safe_metadata(data_dict: dict) -> str:
         """
         Extracts column names, data types, and safe summary statistics 
-        to send to the LLM without leaking raw data.
+        to send to the LLM without leaking raw data, for all dataframes.
         """
-        # We only send column names, dtypes, and basic stats
-        metadata = f"Data Shape: {df.shape}\n\n"
-        metadata += "Columns and Data Types:\n"
-        metadata += str(df.dtypes) + "\n\n"
-        
-        # Add basic numeric description, skipping string data which might contain PII
-        numeric_df = df.select_dtypes(include=['number'])
-        if not numeric_df.empty:
-            metadata += "Numeric Data Summary:\n"
-            metadata += str(numeric_df.describe())
+        metadata_all = ""
+        for name, df in data_dict.items():
+            metadata = f"--- Dataset: {name} ---\n"
+            metadata += f"Data Shape: {df.shape}\n\n"
+            metadata += "Columns and Data Types:\n"
+            metadata += str(df.dtypes) + "\n\n"
             
-        return metadata
+            # Add basic numeric description, skipping string data which might contain PII
+            numeric_df = df.select_dtypes(include=['number'])
+            if not numeric_df.empty:
+                metadata += "Numeric Data Summary:\n"
+                metadata += str(numeric_df.describe())
+            metadata_all += metadata + "\n\n"
+            
+        return metadata_all
 
 if __name__ == "__main__":
     # Quick test

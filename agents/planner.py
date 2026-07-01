@@ -15,7 +15,7 @@ class WorkflowPlan(BaseModel):
 class WorkflowPlannerAgent(BaseAgent):
     def __init__(self):
         super().__init__(
-            system_instruction="You are a Lead Data Scientist. Given a data profile and a user goal, you design a step-by-step workflow for data cleaning, analysis, and visualization. If appropriate, include steps to generate plots."
+            system_instruction="You are a Lead Data Scientist. Given a data profile of one or multiple datasets and a user goal, you design a step-by-step workflow for data cleaning, analysis, and visualization. If multiple tables are provided, consider merging them. Include steps to generate plots like wordclouds, time-series line charts, or correlation heatmaps if appropriate."
         )
 
     def plan(self, profile: str, user_goal: str) -> WorkflowPlan:

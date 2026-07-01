@@ -13,13 +13,13 @@ class AutoDataAnalyst:
         self.executor = DataScientistAgent()
         self.communicator = AnalystCommunicatorAgent()
 
-    def process_data(self, df: pd.DataFrame, user_goal: str):
-        yield "System", "Redacting PII and extracting safe metadata..."
-        redacted_df = DataPrivacyGuard.redact_dataframe(df)
-        metadata = DataPrivacyGuard.extract_safe_metadata(redacted_df)
+    def process_data(self, dfs: dict, user_goal: str):
+        yield "System", "Redacting PII and extracting safe metadata from datasets..."
+        redacted_dfs = DataPrivacyGuard.redact_dataframe(dfs)
+        metadata = DataPrivacyGuard.extract_safe_metadata(redacted_dfs)
         
-        # Load the dataframe into the sandbox globals for MCP to execute against
-        sandbox_globals['df'] = redacted_df
+        # Load the dataframes into the sandbox globals for MCP to execute against
+        sandbox_globals['dfs'] = redacted_dfs
 
         yield "Data Profiler", "Profiling data metadata..."
         profile_report = self.profiler.profile(metadata)
