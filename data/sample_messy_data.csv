@@ -1,0 +1,6 @@
+id,name,email,phone,sales,date
+1,Alice,alice@example.com,555-0100,1000,2023-01-01
+2,Bob,bob@example.com,555-0101,1500,2023-01-02
+3,Charlie,charlie@example.com,555-0102,,2023-01-03
+4,David,david@example.com,555-0103,1200,
+5,Eve,eve@example.com,,2000,2023-01-05
