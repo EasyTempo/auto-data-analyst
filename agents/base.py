@@ -34,5 +34,11 @@ class BaseAgent:
         )
         
         if response_schema:
-            return response_schema.model_validate_json(response.text)
+            import re
+            text = response.text.strip()
+            # Extract only the JSON block to prevent parsing errors from conversational text
+            match = re.search(r'(\{.*\}|\[.*\])', text, re.DOTALL)
+            if match:
+                text = match.group(1)
+            return response_schema.model_validate_json(text)
         return response.text
