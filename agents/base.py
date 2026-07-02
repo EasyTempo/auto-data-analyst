@@ -68,7 +68,7 @@ class BaseAgent:
         if response_schema:
             import json
             schema_str = json.dumps(response_schema.model_json_schema())
-            sys_prompt += f"\nCRITICAL: Output ONLY valid JSON matching this schema: {schema_str}"
+            sys_prompt += f"\nCRITICAL: You MUST output ONLY valid JSON data that conforms to the following JSON Schema. Output the actual JSON data directly, do not wrap it in a 'properties' key or output the schema itself. Schema:\n{schema_str}"
             
         response = self.client.messages.create(
             model=self.model,
@@ -94,7 +94,7 @@ class BaseAgent:
         if response_schema:
             import json
             schema_str = json.dumps(response_schema.model_json_schema())
-            messages[0]["content"] += f"\nCRITICAL: Output ONLY valid JSON matching this schema: {schema_str}"
+            messages[0]["content"] += f"\nCRITICAL: You MUST output ONLY valid JSON data that conforms to the following JSON Schema. Output the actual JSON data directly, do not wrap it in a 'properties' key or output the schema itself. Schema:\n{schema_str}"
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
