@@ -66,7 +66,9 @@ class BaseAgent:
         # Anthropic doesn't have native pydantic parsing yet, so we instruct it to output JSON
         sys_prompt = self.system_instruction
         if response_schema:
-            sys_prompt += "\nCRITICAL: Output ONLY valid JSON matching the requested schema."
+            import json
+            schema_str = json.dumps(response_schema.model_json_schema())
+            sys_prompt += f"\nCRITICAL: Output ONLY valid JSON matching this schema: {schema_str}"
             
         response = self.client.messages.create(
             model=self.model,
@@ -90,7 +92,9 @@ class BaseAgent:
             {"role": "user", "content": prompt}
         ]
         if response_schema:
-            messages[0]["content"] += "\nCRITICAL: Output ONLY valid JSON matching the requested schema."
+            import json
+            schema_str = json.dumps(response_schema.model_json_schema())
+            messages[0]["content"] += f"\nCRITICAL: Output ONLY valid JSON matching this schema: {schema_str}"
             response = self.client.chat.completions.create(
                 model=self.model,
                 messages=messages,
