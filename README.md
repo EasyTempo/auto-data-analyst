@@ -4,7 +4,7 @@ A highly autonomous, multi-model AI Data Analyst agent that completely automates
 
 ## 🌟 Key Features (2.0 Upgrades)
 
-- **Multi-Model Factory (New!)**: Seamlessly switch between **OpenAI**, **Anthropic**, and **Google Gemini** by simply changing an environment variable. Features robust JSON extraction and native OpenAI Structured Outputs to entirely eliminate LLM JSON hallucinations.
+- **Multi-Model Factory (New!)**: Seamlessly switch between **OpenAI**, **Anthropic**, **DeepSeek**, and **Google Gemini** by simply changing an environment variable. Features robust JSON extraction and native OpenAI Structured Outputs to entirely eliminate LLM JSON hallucinations.
 - **Multi-Table & Multi-Format (New!)**: Simultaneously upload `CSV`, `Excel`, and `JSON` files. The agent will automatically infer schemas and execute complex cross-table operations (e.g., merging an orders CSV with a customers Excel file).
 - **Advanced Visualizations (New!)**: Intelligently renders appropriate high-level charts such as **Seaborn Correlation Heatmaps** for high-dimensional data, **WordClouds** for NLP text reviews, and dynamic time-series plots.
 - **Autonomous Reflexion (Self-Correcting)**: If the generated Python code throws an error during execution, the agent catches the traceback, debugs itself, and retries the code automatically.
@@ -29,7 +29,7 @@ This repository includes a suite of advanced datasets in the `data/` folder for 
    ```bash
    cp .env.example .env
    ```
-4. Edit `.env` and choose your preferred AI provider (gemini, openai, anthropic) and paste the respective API key.
+4. Edit `.env` and choose your preferred AI provider (gemini, openai, anthropic, deepseek) and paste the respective API key.
 
 ## 🚀 Usage
 

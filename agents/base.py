@@ -18,6 +18,13 @@ class BaseAgent:
             from anthropic import Anthropic
             self.client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
             self.model = os.getenv("MODEL_NAME", "claude-3-5-sonnet-20241022")
+        elif self.provider == "deepseek":
+            from openai import OpenAI
+            self.client = OpenAI(
+                api_key=os.getenv("DEEPSEEK_API_KEY"),
+                base_url="https://api.deepseek.com"
+            )
+            self.model = os.getenv("MODEL_NAME", "deepseek-chat")
         else:
             from google import genai
             self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
@@ -29,6 +36,8 @@ class BaseAgent:
             return self._generate_openai(prompt, response_schema)
         elif self.provider == "anthropic":
             return self._generate_anthropic(prompt, response_schema)
+        elif self.provider == "deepseek":
+            return self._generate_deepseek(prompt, response_schema)
         else:
             return self._generate_gemini(prompt, response_schema)
 
@@ -74,6 +83,30 @@ class BaseAgent:
                 text = match.group(1)
             return response_schema.model_validate_json(text)
         return text
+
+    def _generate_deepseek(self, prompt: str, response_schema: Optional[Type[T]]) -> str | T:
+        messages = [
+            {"role": "system", "content": self.system_instruction},
+            {"role": "user", "content": prompt}
+        ]
+        if response_schema:
+            messages[0]["content"] += "\nCRITICAL: Output ONLY valid JSON matching the requested schema."
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                response_format={"type": "json_object"}
+            )
+            text = response.choices[0].message.content.strip()
+            match = re.search(r'(\{.*\}|\[.*\])', text, re.DOTALL)
+            if match:
+                text = match.group(1)
+            return response_schema.model_validate_json(text)
+        else:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=messages
+            )
+            return response.choices[0].message.content
 
     def _generate_gemini(self, prompt: str, response_schema: Optional[Type[T]]) -> str | T:
         config = {"system_instruction": self.system_instruction}
